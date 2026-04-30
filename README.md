@@ -4,21 +4,78 @@ Verify addresses, emails, and phone numbers against Loqate's global reference da
 
 ## Install
 
-**Claude Code:**
+### Claude.ai (web & desktop)
+
+1. Go to **Settings → Skills**
+2. Click **Add Skill**
+3. Upload the `SKILL.md` file
+4. Claude auto-discovers and uses it in conversations
+
+### Claude Code
 
 ```bash
-px skills add https://github.com/gbgplc/loqate-skill
+npx skills add https://github.com/gbgplc/loqate-skill
 ```
 
-Or add it manually to your project's `.claude/settings.json`:
+Or clone manually:
+
+```bash
+# Personal (all projects)
+git clone https://github.com/gbgplc/loqate-skill ~/.claude/skills/loqate
+
+# Project-scoped (shared via version control)
+git clone https://github.com/gbgplc/loqate-skill .claude/skills/loqate
+```
+
+### Claude Code — plugin marketplace
+
+```bash
+claude plugin marketplace add https://github.com/gbgplc/loqate-skill
+claude plugin install loqate-skill@gbgplc
+```
+
+Community aggregators like SkillsMP and LobeHub pick up public skill repos automatically.
+
+### Claude API
+
+```bash
+ant beta:skills create \
+  --display-title "Loqate Verification" \
+  --file SKILL.md \
+  --beta skills-2025-10-02
+```
+
+Or via Python SDK:
+
+```python
+client.beta.skills.create(
+    display_title="Loqate Verification",
+    files=[("SKILL.md", open("SKILL.md", "rb"))],
+    betas=["skills-2025-10-02"]
+)
+```
+
+Then reference in API calls:
 
 ```json
-{
-  "skills": ["https://github.com/gbgplc/loqate-skill"]
+{ "container": { "skills": [{ "type": "custom", "skill_id": "skill_xxx", "version": "latest" }] } }
+```
+
+### Agent SDK
+
+Same skill reference as the API:
+
+```python
+container={
+    "skills": [
+        {"type": "custom", "skill_id": "skill_xxx", "version": "latest"}
+    ]
 }
 ```
 
-**Plugin marketplace:** Add `https://github.com/gbgplc/loqate-skill` as a source. Community aggregators like SkillsMP and LobeHub pick up public skill repos automatically.
+### Org-wide (Claude.ai Team/Enterprise)
+
+For admins who want every user to get the skill without individual installs — paste the skill content into **Settings → Organization → Project instructions**. This injects the guidance into every conversation for all team members.
 
 ## Setup
 
