@@ -117,6 +117,4 @@ This skill connects to the Loqate MCP server. For self-hosted or alternative set
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
-
-This skill definition is MIT-licensed. The Loqate verification service, CLI, and MCP server it connects to are proprietary software of [GBG plc](https://www.gbgplc.com) and require a separate API key.
+Proprietary — see [LICENSE](LICENSE). Use is governed by the Loqate terms and conditions agreed upon with your Loqate account.
