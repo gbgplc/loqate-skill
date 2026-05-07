@@ -27,15 +27,6 @@ git clone https://github.com/gbgplc/loqate-skill ~/.claude/skills/loqate
 git clone https://github.com/gbgplc/loqate-skill .claude/skills/loqate
 ```
 
-### Claude Code — plugin marketplace
-
-```bash
-claude plugin marketplace add https://github.com/gbgplc/loqate-skill
-claude plugin install loqate-skill@gbgplc
-```
-
-Community aggregators like SkillsMP and LobeHub pick up public skill repos automatically.
-
 ### Claude API
 
 ```bash
