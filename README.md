@@ -1,6 +1,6 @@
 # Loqate Skill for Claude
 
-Verify addresses, emails, and phone numbers against Loqate's global reference data — directly from Claude. Get clear **accept**, **review**, or **reject** recommendations with confidence scores, powered by [GBG](https://www.gbgplc.com).
+Verify addresses, emails, and phone numbers against Loqate's global reference data — directly from Claude. Get clear **accept**, **review**, or **reject** recommendations with confidence scores, powered by [GBG](https://www.gbgplc.com). Part of [GBG Reach](https://agents.gbg.com/reach).
 
 ## Install
 
