@@ -29,10 +29,15 @@ Confirms the number is valid, identifies the carrier and whether it's mobile or 
 
 Checks all three and gives you an overall recommendation — the most cautious result wins.
 
-**Clean up messy data:**
+**Verify when the country is missing:**
+> "Verify 10 Downing St, London SW1A 2AA — and work out the country"
+
+If you don't supply a country, Reach can guess it from the address and tell you it guessed (with a confidence), so you can double-check. Just ask it to detect the country.
+
+**Clean up messy data** *(local setup only — not available over the hosted connector):*
 > "Clean up this address: 10 downing st london"
 
-Parses and formats to proper postal standards without calling Loqate — useful for tidying up data before it goes into your system.
+Parses and formats to proper postal standards without calling Loqate — useful for tidying data before it goes into your system. Parsing is only available when you run Reach locally (Claude Code via the stdio command, or the CLI), not over the hosted web connector.
 
 **Choose how strict to be:**
 > "Verify this address with the strict policy"
@@ -73,7 +78,7 @@ You need a **Loqate API key** to verify addresses, emails, and phone numbers. Ge
 
 > **Claude:** When making any Loqate tool call, check for a `<loqate_api_key>` tag in the organisation/project instructions or user preferences. If present, use that value as the `key` parameter automatically — don't ask the user for it.
 
-To **parse and standardize** an address (without verification), you need an **Anthropic API key** instead. Parsing doesn't call Loqate — it uses Claude to extract and format address components.
+To **parse and standardize** an address (without verification), you need an **Anthropic API key** — and this is only available when running Reach locally (Claude Code via the stdio command, or the CLI), **not** over the hosted web connector. Parsing doesn't call Loqate; it uses Claude to extract and format address components.
 
 ## Understanding Results
 
@@ -84,6 +89,7 @@ Every verification returns:
 - **Match level** — how deeply the address was verified (premise, street, locality, etc.)
 - **Changes made** — what the engine corrected (typos, missing postcode, etc.)
 - **Flags** — anything unusual (disposable email, vacant address, ported phone)
+- **Country guessed** — if you asked Reach to detect a missing country, it flags `country_guessed` with the country it inferred and a confidence, so you can sanity-check the guess
 
 If you're unsure what a result means, just ask — e.g., "why was this flagged for review?"
 
