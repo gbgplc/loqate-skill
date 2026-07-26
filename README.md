@@ -88,8 +88,9 @@ You need a **Loqate API key** to verify data. Get one at [account.loqate.com](ht
 | Check an email | "Is test@mailinator.com a real email?" |
 | Validate a phone | "Check +442071234567" |
 | Verify everything at once | "Verify 10 Downing St, London, email pm@gov.uk, phone +442071234567" |
-| Parse messy data | "Clean up this address: 10 downing st london" |
+| Detect a missing country | "Verify 10 Downing St, London SW1A 2AA and work out the country" |
 | Choose a policy | "Verify this with the strict policy" |
+| Parse messy data *(local setup only)* | "Clean up this address: 10 downing st london" |
 
 ## Policies
 
