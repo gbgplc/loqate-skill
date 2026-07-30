@@ -12,7 +12,7 @@ Verify addresses, emails, and phone numbers against Loqate's global reference da
 **Verify an address:**
 > "Verify 125 Summer St, Boston, MA 02110"
 
-Returns whether the address is real, a confidence score (0–100%), and a recommendation. If something was corrected (e.g., a missing postcode added), it tells you what changed.
+Returns whether the address is real, a confidence score (0–100%), and a recommendation, along with the standardised version of the address so you can see how it differs from what you supplied.
 
 **Check an email:**
 > "Is test@mailinator.com a real email?"
@@ -34,6 +34,31 @@ Checks all three and gives you an overall recommendation — the most cautious r
 
 If you don't supply a country, Reach can guess it from the address and tell you it guessed (with a confidence), so you can double-check. Just ask it to detect the country.
 
+**Get alternatives when an address looks wrong:**
+> "Verify 10 downin st london and suggest the real address if it doesn't check out"
+
+Reach searches Loqate's address data for real addresses matching what was typed and hands back
+a short list you can offer the user or re-verify. Ask for suggestions and it sets
+`suggest: true` on the verify call.
+
+It looks up alternatives when the address wasn't accepted, and also when it *was* accepted but
+scored below the policy's confidence floor — a policy accepts anything above its own minimum,
+so "accepted" doesn't always mean "confident". A street match with no house number can pass the
+standard policy at 0.55, and that's exactly when a suggestion helps. Suggestions are
+address-only and never change the recommendation.
+
+Suggestions are a separately licensed Loqate feature and must be enabled on your account. If they aren't, verification still works normally and Claude will tell you suggestions are unavailable rather than failing the check.
+
+**Closing the loop matters.** A suggestion is a candidate, not a verdict — it has no confidence
+score of its own. Claude will show you the candidates, ask which one is right, then verify that
+one properly and report the real result. If the second check still doesn't pass, you'll be told
+plainly rather than handed a false clean bill.
+
+When you pick one, Claude confirms it by its id rather than by re-typing the text, so Reach
+fetches that address's clean components from Loqate and checks those — which matters for
+addresses carrying a company name, where re-reading the text can misplace it. Resolving a chosen
+address consumes a Loqate credit, so Claude resolves the one you picked, not the whole list.
+
 **Clean up messy data** *(local setup only — not available over the hosted connector):*
 > "Clean up this address: 10 downing st london"
 
@@ -50,7 +75,8 @@ The right policy is picked automatically based on your use case.
 **Get help choosing a policy:**
 > "Recommend a policy for our KYC onboarding flow"
 
-Walks you through a few questions about your use case and generates a custom policy.
+Walks you through a few questions about your use case and generates a custom policy — including
+how eagerly it should offer alternative addresses for records it would otherwise accept.
 
 ## Policies
 
@@ -87,9 +113,10 @@ Every verification returns:
 - **Recommendation** — `accept` (good to go), `review` (check manually), or `reject` (don't trust it)
 - **Confidence** — a score from 0 to 1 (e.g., 0.95 = very confident)
 - **Match level** — how deeply the address was verified (premise, street, locality, etc.)
-- **Changes made** — what the engine corrected (typos, missing postcode, etc.)
-- **Flags** — anything unusual (disposable email, vacant address, ported phone)
+- **Standardised address** — the cleaned, correctly formatted version, to compare against what you sent
+- **Flags** — anything unusual about an email, such as a disposable domain or a known fraud risk
 - **Country guessed** — if you asked Reach to detect a missing country, it flags `country_guessed` with the country it inferred and a confidence, so you can sanity-check the guess
+- **Suggestions** — if you asked for suggestions and the address didn't clear the policy, a `suggestions` list of candidate real addresses, each with a ready-to-display `address` line. Pick one and it gets verified for real before anything is treated as confirmed
 
 If you're unsure what a result means, just ask — e.g., "why was this flagged for review?"
 
