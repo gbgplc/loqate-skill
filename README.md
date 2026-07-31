@@ -1,23 +1,38 @@
-# Loqate Skill for Claude
+# Loqate skill for Claude
 
-Verify addresses, emails, and phone numbers against Loqate's global reference data — directly from Claude. Get clear **accept**, **review**, or **reject** recommendations with confidence scores, powered by [GBG](https://www.gbgplc.com). Part of [GBG Reach](https://agents.gbg.com/reach).
+Verify addresses, emails, and phone numbers against Loqate's global reference data, straight from Claude. You get clear **accept**, **review**, or **reject** recommendations with confidence scores, powered by [GBG](https://www.gbgplc.com). Part of [GBG Reach](https://agents.gbg.com/reach.html).
 
-## Install
+> **How it works (read this first).** This skill doesn't verify data on its own. It tells Claude *how* to verify, then calls the **Loqate MCP connector** to do the work. So you install two things: the skill, and the connector. Install the skill on its own and Claude has nothing to call.
 
-### Claude.ai (web & desktop)
+## What you need
 
-1. Go to **Settings → Skills**
-2. Click **Add Skill**
-3. Upload the `SKILL.md` file
-4. Claude auto-discovers and uses it in conversations
+| # | Component | Purpose | Required? |
+|---|-----------|---------|-----------|
+| 1 | **This skill** (`SKILL.md`) | Tells Claude how to verify and which policy to apply | Yes |
+| 2 | **Loqate MCP connector** | The verification engine Claude calls | Yes, for all verification |
+| 3 | **Loqate API key** | Authenticates verification requests | Yes, for all verification |
+| 4 | **Anthropic API key** | Only for *parsing/standardising* an address (no Loqate call) | Optional |
+
+## Step 1: install the skill
+
+### Claude.ai (web and desktop)
+
+1. First enable the capability: **Settings → Capabilities → turn on "Code execution and file creation"**. On Enterprise, an Owner must also enable **Skills** under **Organization settings → Skills**.
+2. Package the skill folder as a **ZIP** (the file must be a `.zip` containing `SKILL.md`, not a bare `SKILL.md`).
+3. Go to **Settings → Customize → Skills**, click **+**, then **+ Create skill**, and upload the ZIP.
+4. Toggle the skill on. Claude discovers and uses it in conversations automatically.
+
+Custom skills you upload are private to your account. Owners can upload a skill under **Organization settings → Skills** to provision it for everyone.
 
 ### Claude Code
 
 ```bash
-npx skills add https://github.com/gbgplc/loqate-skill
+npx skills add gbgplc/loqate-skill
 ```
 
-Or clone manually:
+> **Note:** the `skills` CLI writes to `~/.agents/skills/`, but Claude Code reads from `~/.claude/skills/`. If the skill isn't picked up, use the manual clone below instead.
+
+Manual install:
 
 ```bash
 # Personal (all projects)
@@ -27,58 +42,71 @@ git clone https://github.com/gbgplc/loqate-skill ~/.claude/skills/loqate
 git clone https://github.com/gbgplc/loqate-skill .claude/skills/loqate
 ```
 
-### Claude API
+### Building Loqate into your own app?
 
-```bash
-ant beta:skills create \
-  --display-title "Loqate Verification" \
-  --file SKILL.md \
-  --beta skills-2025-10-02
-```
+If you're embedding this in a product via the Claude API or Agent SDK rather than using it in Claude directly, upload the skill through the Skills API and reference the returned `skill_*` ID. See the [Skills API docs](https://platform.claude.com/docs/en/build-with-claude/skills-guide). You'll also need the Loqate MCP connector reachable from your execution environment (Step 2).
 
-Or via Python SDK:
+## Step 2: connect the Loqate MCP server
 
-```python
-client.beta.skills.create(
-    display_title="Loqate Verification",
-    files=[("SKILL.md", open("SKILL.md", "rb"))],
-    betas=["skills-2025-10-02"]
-)
-```
+This is the step that makes verification work. Add the connector once per environment.
 
-Then reference in API calls:
+Connector URL: `https://reach.prod.fabric.gbgplatforms.com/mcp`
+
+### Claude.ai and Cowork, organisation-wide (Team / Enterprise)
+
+An admin enables it once for everyone:
+
+1. Go to **Organization settings → Connectors → Add**
+2. Hover over **Custom**, select **Web**
+3. Name it **Loqate**
+4. Paste the connector URL above
+5. Click **Add**
+
+Team members then see Loqate in their **Connectors** list and click **Connect**.
+
+### Claude.ai — individual
+
+1. Go to **Customize → Connectors** (or visit `claude.ai/settings/connectors`)
+2. Click **+**, then **Add custom connector**
+3. Name it **Loqate**, paste the connector URL, click **Add**
+4. In a chat, click **+ → Connectors** and toggle Loqate on
+
+### Claude Desktop
+
+1. **Settings → Connectors → + → Add custom connector**
+2. Name it **Loqate**, paste the connector URL, click **Add**, then restart the app
+
+### Claude Code
+
+Add to your project's `.mcp.json`:
 
 ```json
-{ "container": { "skills": [{ "type": "custom", "skill_id": "skill_xxx", "version": "latest" }] } }
-```
-
-### Agent SDK
-
-Same skill reference as the API:
-
-```python
-container={
-    "skills": [
-        {"type": "custom", "skill_id": "skill_xxx", "version": "latest"}
-    ]
+{
+  "mcpServers": {
+    "loqate": {
+      "url": "https://reach.prod.fabric.gbgplatforms.com/mcp"
+    }
+  }
 }
 ```
 
-### Org-wide (Claude.ai Team/Enterprise)
+For self-hosted or alternative setups, see the [MCP server documentation](https://github.com/gbgplc/lqt).
 
-For admins who want every user to get the skill without individual installs — paste the skill content into **Settings → Organization → Project instructions**. This injects the guidance into every conversation for all team members.
+## Step 3: set your API key
 
-## Setup
+Get a Loqate API key at [account.loqate.com](https://account.loqate.com). Claude looks for it in this order:
 
-You need a **Loqate API key** to verify data. Get one at [account.loqate.com](https://account.loqate.com).
+1. **Organisation / project instructions** *(recommended for teams)*. An admin adds the tag once and everyone inherits it:
 
-**For teams (recommended):** Add this to your org or project instructions so every user gets it automatically:
+   ```
+   <loqate_api_key>YOUR-KEY-HERE</loqate_api_key>
+   ```
 
-```
-<loqate_api_key>YOUR-KEY-HERE</loqate_api_key>
-```
+2. **User preferences.** An individual adds the same tag under **Settings → Profile**.
+3. **In conversation.** As a fallback, say "My Loqate API key is …" and Claude uses it for that conversation.
+4. **Server-configured.** If the Reach MCP server already has a default key, you don't need one.
 
-**For individuals:** Add the same tag to your user preferences, or just say "My Loqate API key is ..." in conversation.
+Address *parsing/standardising* (formatting without a Loqate lookup) uses Claude rather than the Loqate engine, so it needs an **Anthropic API key** instead, not a Loqate key.
 
 ## What you can do
 
@@ -90,24 +118,24 @@ You need a **Loqate API key** to verify data. Get one at [account.loqate.com](ht
 | Verify everything at once | "Verify 10 Downing St, London, email pm@gov.uk, phone +442071234567" |
 | Detect a missing country | "Verify 10 Downing St, London SW1A 2AA and work out the country" |
 | Suggest the real address | "Verify 10 downin st london and suggest alternatives if it doesn't check out" |
+| Parse messy data | "Clean up this address: 10 downing st london" |
 | Choose a policy | "Verify this with the strict policy" |
-| Parse messy data *(local setup only)* | "Clean up this address: 10 downing st london" |
 
 ## Policies
 
+Every verification uses a policy that decides what counts as good enough. Just describe what the data is for and the right one is applied.
+
 | Policy | Best for | How strict |
 |--------|----------|-----------|
-| **strict** | KYC, fraud, identity, payments | Needs high confidence and premise-level match |
+| **strict** | KYC, fraud, identity, payments | High confidence and premise-level match |
 | **shipping** | Delivery, fulfilment, logistics | Needs a real street address |
-| **standard** | CRM, data quality, general use | Balanced — the default |
+| **standard** | CRM, data quality, general use | Balanced. The default |
 | **permissive** | Marketing, newsletters, signups | Only rejects clearly bad data |
 
-Just describe what the data is for and the right policy is applied.
+## Understanding results
 
-## MCP Server
+Every verification returns a **recommendation** (`accept`, `review`, or `reject`), a **confidence** score (0 to 1), a **match level** (premise, street, locality, and so on), the **standardised address** so you can see how it differs from what you sent, and **flags** for anything unusual about an email, such as a disposable domain or a known fraud risk. If a result is unclear, just ask Claude why it was flagged.
 
-This skill connects to the Loqate MCP server. For self-hosted or alternative setups, see the [MCP server documentation](https://github.com/gbgplc/lqt).
+## Licence
 
-## License
-
-Proprietary — see [LICENSE](LICENSE). Use is governed by the Loqate terms and conditions agreed upon with your Loqate account.
+Proprietary. See [LICENSE](https://github.com/gbgplc/loqate-skill/blob/main/LICENSE). Use is governed by the Loqate terms and conditions agreed with your Loqate account.
