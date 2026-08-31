@@ -128,7 +128,7 @@ Every verification uses a policy that decides what counts as good enough. Just d
 | Policy | Best for | How strict |
 |--------|----------|-----------|
 | **strict** | KYC, fraud, identity, payments | High confidence and premise-level match |
-| **shipping** | Delivery, fulfilment, logistics | Needs a real street address |
+| **shipping** | Delivery, fulfilment, logistics | Higher confidence than standard before accepting |
 | **standard** | CRM, data quality, general use | Balanced. The default |
 | **permissive** | Marketing, newsletters, signups | Only rejects clearly bad data |
 
