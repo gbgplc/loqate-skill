@@ -85,7 +85,7 @@ Every verification uses a **policy** that decides what counts as good enough. Th
 | Policy | Best for | How strict |
 |--------|----------|-----------|
 | **strict** | KYC, fraud, identity, payments | Very tight — needs high confidence and premise-level match |
-| **shipping** | Delivery, fulfilment, logistics | Moderate — needs a real street address |
+| **shipping** | Delivery, fulfilment, logistics | Higher — wants a confident match, not just a plausible one |
 | **standard** | CRM, data quality, general use | Balanced — the default if you don't specify |
 | **permissive** | Marketing, newsletters, signups | Lenient — only rejects clearly bad data |
 
