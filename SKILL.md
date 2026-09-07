@@ -114,6 +114,8 @@ Every verification returns:
 - **Confidence** — a score from 0 to 1 (e.g., 0.95 = very confident)
 - **Match level** — how deeply the address was verified (premise, street, locality, etc.)
 - **Standardised address** — the cleaned, correctly formatted version, to compare against what you sent
+- **What changed** — ask for it and Reach lists exactly what Loqate altered: which parts it added (a missing ZIP+4, a county), which it corrected, and which it only reformatted. Fields it verified without touching are not listed, so a short list means a clean address. Loqate only sends the underlying codes when asked, so this arrives only if the request carries `options: {"ServerOptions": {"FieldStatus": "true"}}` — no `changes` at all means it wasn't requested, whereas an empty list means it was and nothing changed. Don't tell someone their address was unaltered unless you actually asked
+- **Why the score is what it is** — a matchscore for how closely the result resembles what you sent, and the country's data coverage level, which is why a street-level match in some countries still scores highly: it is the best that country's data allows
 - **Flags** — anything unusual about an email, such as a disposable domain or a known fraud risk
 - **Country guessed** — if you asked Reach to detect a missing country, it flags `country_guessed` with the country it inferred and a confidence, so you can sanity-check the guess
 - **Suggestions** — if you asked for suggestions and the address didn't clear the policy, a `suggestions` list of candidate real addresses, each with a ready-to-display `address` line. Pick one and it gets verified for real before anything is treated as confirmed
